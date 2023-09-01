@@ -57,5 +57,13 @@ public class TaxiInformController {
 	}
 	
 	
+	@GetMapping("/taxiResult")
+	public ResponseEntity<List<TaxiResult>> getAllVehicleResult() throws TaxiInformException{
+		List<TaxiResult> allTaxiInfor=resultService.getAllVehResult();
+		return new ResponseEntity<List<TaxiResult>>(allTaxiInfor,HttpStatus.OK);
+		
+	}
+	
+	
 
 }

@@ -31,8 +31,9 @@ public class TaxiResuliImpl implements TaxiResultService{
 		taxiRes.setVehNumber(vehNo);
 		int move=0;
 		int idle=0;
-		String inT="";
+		String inT="";	
 		int c=0;
+		int speed=0;
 		int kmDriven=0;
 		
 		for(TaxiInformation el:singLt) {
@@ -43,8 +44,8 @@ public class TaxiResuliImpl implements TaxiResultService{
 				if(c==0) {
 					inT=vdt[1];
 					c++;
-				}else {
-					if(el.getVehStatus().equals("running")) {
+				}
+					if(el.getVehStatus().equals("Idle")) {
 					String nextTime=vdt[1];
 					String[] inTSt=inT.split(":");
 					String[] finSt=nextTime.split(":");
@@ -57,32 +58,38 @@ public class TaxiResuliImpl implements TaxiResultService{
 					finmin+=m2;
 					int m1=Integer.parseInt(inTSt[1]);
 					finmin-=m1;
-					move=finmin;	
+					move+=finmin;	
 					inT=nextTime;
 					
 					// km driven code
 					
-					kmDriven+=el.getVehSpeed_kmph()*(finmin/60);
+					kmDriven+=speed*(finmin/60);
+					
 					
 					}
-					else {
+					else {						
+						    speed=el.getVehSpeed_kmph();
+						    String nextTime=vdt[1];
+						    String[] inTSt=inT.split(":");
+							String[] finSt=nextTime.split(":");
+							int h1=Integer.parseInt(inTSt[0]);
+							int h2=Integer.parseInt(finSt[0]);
+							int finmin=0;
+							int hd=(h2-h1)*60;
+							finmin+=hd;
+							int m2=Integer.parseInt(finSt[1]);
+							finmin+=m2;
+							int m1=Integer.parseInt(inTSt[1]);
+							finmin-=m1;
+							idle+=finmin;	
+							inT=nextTime;
 						
-						String nextTime=vdt[1];
-						String[] inTSt=inT.split(":");
-						String[] finSt=nextTime.split(":");
-						int h1=Integer.parseInt(inTSt[0]);
-						int h2=Integer.parseInt(finSt[0]);
-						int finmin=0;
-						int hd=(h2-h1)*60;
-						finmin+=hd;
-						int m2=Integer.parseInt(finSt[1]);
-						finmin+=m2;
-						int m1=Integer.parseInt(inTSt[1]);
-						finmin-=m1;
-						idle=finmin;	
-						inT=nextTime;
 						
-					}}}}
+					}
+					}
+			
+			}
+//		}
 		taxiRes.setVehMomentIn_minutes(move);
 		taxiRes.setVehIdleIn_minutes(idle);
 		taxiRes.setKmDriven(kmDriven);
@@ -90,9 +97,19 @@ public class TaxiResuliImpl implements TaxiResultService{
 		return res.save(taxiRes);	
 		
 	}
-		else
+		else 
 			throw new TaxiInformException("Invalid Vehicle Number"+vehNo);
 		}
+
+	@Override
+	public List<TaxiResult> getAllVehResult() throws TaxiInformException {
+		List<TaxiResult> lt=res.findAll();
+		
+		if(lt.size()>0)
+			return lt;
+		else
+			throw new  TaxiInformException("No Taxi-Record found");
+	}
 	
 
 }
